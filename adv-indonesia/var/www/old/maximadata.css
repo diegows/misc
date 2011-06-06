@@ -1,0 +1,38 @@
+#pmyr_div {
+    -x-system-font:none;
+    background-color:#FFFFFF;
+    border:1px solid #333333;
+    font-family:arial;
+    font-size:15px;
+    font-size-adjust:none;
+    font-stretch:normal;
+    font-style:normal;
+    font-variant:normal;
+    font-weight:normal;
+    height:100%;
+    left:0;
+    line-height:normal;
+    padding-left:20px;
+    padding-right:20px;
+    position:fixed;
+    text-align:center;
+    top:0;
+    width:100%;
+    z-index: 999999999;
+}
+
+#img_maxim {
+    vertical-align: middle;
+    text-align:center;
+}
+
+#maximadatabottom {
+   width: 98.5%;
+   position: fixed;
+   bottom: 0px;
+   background: #18f8f8;
+   text-align: center;
+   z-index: 999999999;
+   height: 50px;
+}
+

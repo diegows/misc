@@ -1,0 +1,11 @@
+
+#maximadatabottom {
+   width: 98.5%;
+   position: fixed;
+   bottom: 0px;
+   background: #18f8f8;
+   text-align: center;
+   z-index: 999999999;
+   height: 50px;
+}
+

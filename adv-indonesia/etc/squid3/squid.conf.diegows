@@ -1,0 +1,127 @@
+
+#
+# Recommended minimum configuration:
+#
+acl manager proto cache_object
+acl localhost src 127.0.0.1/32
+acl localhost src ::1/128
+acl to_localhost dst 127.0.0.0/8 0.0.0.0/32
+acl to_localhost dst ::1/128
+
+# Example rule allowing access from your local networks.
+# Adapt to list your (internal) IP networks from where browsing
+# should be allowed
+acl localnet src 10.0.0.0/8	# RFC1918 possible internal network
+acl localnet src 172.16.0.0/12	# RFC1918 possible internal network
+acl localnet src 192.168.0.0/16	# RFC1918 possible internal network
+acl localnet src fc00::/7   # RFC 4193 local private network range
+acl localnet src fe80::/10  # RFC 4291 link-local (directly plugged) machines
+
+acl SSL_ports port 443
+acl Safe_ports port 80		# http
+acl Safe_ports port 21		# ftp
+acl Safe_ports port 443		# https
+acl Safe_ports port 70		# gopher
+acl Safe_ports port 210		# wais
+acl Safe_ports port 1025-65535	# unregistered ports
+acl Safe_ports port 280		# http-mgmt
+acl Safe_ports port 488		# gss-http
+acl Safe_ports port 591		# filemaker
+acl Safe_ports port 777		# multiling http
+acl CONNECT method CONNECT
+acl PURGE method PURGE
+acl adminapp dst 217.112.94.225
+acl 200ok http_status 200
+
+#
+# Recommended minimum Access Permission configuration:
+#
+# Only allow cachemgr access from localhost
+http_access allow manager localhost
+http_access allow PURGE localhost
+http_access deny manager
+
+# Deny requests to certain unsafe ports
+http_access deny !Safe_ports
+
+# Deny CONNECT to other than secure SSL ports
+http_access deny CONNECT !SSL_ports
+
+# We strongly recommend the following be uncommented to protect innocent
+# web applications running on the proxy server who think the only
+# one who can access services on "localhost" is a local user
+#http_access deny to_localhost
+
+#
+# INSERT YOUR OWN RULE(S) HERE TO ALLOW ACCESS FROM YOUR CLIENTS
+#
+#acl users proxy_auth REQUIRED
+#acl fr src 88.1.83.136 95.121.110.84 186.19.23.145
+#http_access allow fr
+http_access allow localhost
+#http_access allow users
+
+# Example rule allowing access from your local networks.
+# Adapt localnet in the ACL section to list your (internal) IP networks
+# from where browsing should be allowed
+http_access allow localnet
+http_access allow localhost
+http_access allow adminapp
+
+external_acl_type host_spot ttl=60 negative_ttl=0 children=10 %SRC /opt/tg2/bin/run.sh /opt/tg2/proxyad/scripts/squid-acl.py /opt/tg2/proxyad/config.ini
+
+external_acl_type whitelist ttl=3600 negative_ttl=0 children=10 %SRC %URI /opt/tg2/bin/run.sh /opt/tg2/proxyad/scripts/whitelist.py /opt/tg2/proxyad/config.ini
+
+external_acl_type host_spot_disabled ttl=60 negative_ttl=0 children=10 %SRC /opt/tg2/bin/run.sh /opt/tg2/proxyad/scripts/squid-acl-disabled-hs.py /opt/tg2/proxyad/config.ini
+
+acl host_spot external host_spot
+http_access allow host_spot
+
+# And finally deny all other access to this proxy
+http_access deny all
+
+# Squid normally listens to port 3128
+http_port 3128 intercept
+
+# We recommend you to use at least the following line.
+hierarchy_stoplist cgi-bin ?
+
+# Uncomment and adjust the following to add a disk cache directory.
+cache_dir ufs /usr/local/squid3/var/cache 100 16 256
+
+# Leave coredumps in the first cache dir
+coredump_dir /usr/local/squid3/var/cache
+
+# Add any of your own refresh_pattern entries above these.
+refresh_pattern ^ftp:		1440	20%	10080
+refresh_pattern ^gopher:	1440	0%	1440
+refresh_pattern -i (/cgi-bin/|\?) 0	0%	0
+refresh_pattern .		0	20%	4320
+
+cache_effective_user proxy
+
+icap_enable on
+
+icap_service service_resp respmod_precache bypass=0 icap://127.0.0.1:8081/response
+
+acl html rep_mime_type text/html application/xhtml
+acl get method GET
+
+acl DomainsExcluded dstdomain "/usr/local/squid3/etc/DomainsExcluded.acl"
+acl DstIpsExcluded dst "/usr/local/squid3/etc/DstIpsExcluded.acl"
+acl WhiteList external whitelist
+acl HostSpotDisabled external host_spot_disabled
+
+adaptation_access service_resp deny HostSpotDisabled
+adaptation_access service_resp deny DstIpsExcluded
+adaptation_access service_resp deny DomainsExcluded
+adaptation_access service_resp deny get 200ok html WhiteList
+adaptation_access service_resp allow get 200ok html 
+adaptation_access service_resp deny all
+
+
+visible_hostname proxy.twf.com
+
+logfile_rotate 0
+
+deny_info ACCESS_DENIED_CUSTOM all
