@@ -1,16 +1,24 @@
 #!/bin/bash
 
-ip rule add fwmark 1 lookup 100
-ip -f inet route add local 0.0.0.0/0 dev br0 table 100
+###CONFIG###
+ip route add 202.51.56.0/21 via 202.51.56.108
+LOCAL_IP="202.51.56.106"
+############
 
-echo 0 > /proc/sys/net/ipv4/conf/lo/rp_filter
+ip rule add fwmark 1 lookup 100
+ip route add local 0.0.0.0/0 dev br0 table 100 
+
+
+echo 0 > /proc/sys/net/ipv4/conf/all/rp_filter
 echo 1 > /proc/sys/net/ipv4/ip_forward
 
 iptables -t mangle -N DIVERT
 iptables -t mangle -A DIVERT -j MARK --set-mark 1
 iptables -t mangle -A DIVERT -j ACCEPT
+iptables -t mangle -A PREROUTING -p tcp -m socket -j LOG \
+				--log-prefix '[SOCKET]'
 iptables -t mangle -A PREROUTING -p tcp -m socket -j DIVERT
-iptables -t mangle -A PREROUTING -d 202.51.56.106 -j DIVERT
+iptables -t mangle -A PREROUTING -d $LOCAL_IP -j DIVERT
 iptables -t mangle -A PREROUTING -p tcp --dport 80 -j LOG \
 				--log-prefix '[TPROXY]'
 iptables -t mangle -A PREROUTING -p tcp --dport 80 -j TPROXY \

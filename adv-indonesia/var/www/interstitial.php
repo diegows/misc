@@ -10,7 +10,9 @@ header('Refresh: 10; URL=' . $_GET['url']);
 <body>
 <a href="<?=$_GET['url']?>">close</a>
 
-<center><img src="interstial.png" /> </center>
+<center>
+	<img src="interstial.png" />
+</center>
 
 </body>
 </html>
