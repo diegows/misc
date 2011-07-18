@@ -1,0 +1,13 @@
+#!/bin/bash
+
+
+case $1 in
+	start)
+		nohup python /usr/local/bin/icap-server.py \
+				/etc/squid3/icap-server.conf > /tmp/icap.out 2>&1 &
+		;;
+	stop)
+		pkill -f icap-server.py
+		;;
+esac
+

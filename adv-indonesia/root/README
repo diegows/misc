@@ -1,0 +1,55 @@
+PROXY AD - Installation
+
+Packages required:
+squid3
+python-twisted-core
+ebtables
+bridge-utils
+iproute2
+iptables
+
+Files:
+
+/etc/network/interfaces: Bridge configuration and tproxy.sh invocatino.
+
+/etc/network/tproxy.sh: Tproxy configuration.
+
+/etc/squid3/squid.conf: Squid configuration.
+
+/etc/squid3/icap-server.cfg: Icap configuration.
+
+/usr/local/bin/icap-server.py: Icap server (Squid calls it to modify the page
+ to insert the JS code that inserts advertising)>
+
+/var/www/maximadata.css: CSS configuration of the bottom banner.
+
+/var/www/maximadata.js: Javascript inserted in the pages to insert advertising.
+
+/var/www/interstitial.php: Interstitial page. This is an example, it must be 
+ customized.
+
+/var/www/bottom-ad.html: Page displayed in the bottom banner.
+
+/etc/squid3/AllowedNets.acl: Put the ip address allowed to use squid here.
+
+/etc/squid3/DomainsExcluded.acl: Domains excluded from advertising.
+
+/etc/squid3/DstIpsExcluded.acl: Destination IP addresses excluded from advertising.
+
+/etc/squi3/SrcIpsExcluded.acl: Source IP address excluded from advertising.
+
+Network Configuration:
+/etc/network/interfaces
+
+/etc/network/tproxy.sh: There is configuration in the first lines.
+
+Advertising Configuration:
+The advertising configuration is in the first lines of maximadata.js. There is an
+explanation of every parameter there.
+
+The content of the advertising must be included in interstitial.php and bottom-ad.html
+files.
+
+The Squid configuration is in the last four files listed above.
+
+
